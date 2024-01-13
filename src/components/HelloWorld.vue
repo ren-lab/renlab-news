@@ -1,7 +1,7 @@
 <template>
   <v-container class="fill-height">
     <v-responsive class="align-center text-center fill-height">
-      <v-form>
+      <v-form @submit.prevent>
         <v-table>
           <tbody>
             <tr v-for="item in data" :key="item.name">
@@ -10,7 +10,7 @@
           </tbody>
         </v-table>
         <v-file-input v-model="thumb" accept="image/*" show-size label="Thumb image"></v-file-input>
-        <v-btn type="submit" block class="mt-2">Submit</v-btn>
+        <v-btn type="submit" block class="mt-2" @click="upload">Submit</v-btn>
         <v-row>
           <v-col v-if="doi"><a :href="doi" _target="_doi">doi</a><br/></v-col>
           <v-col v-if="link"><a :href="link" _target="_link">link</a></v-col>
@@ -22,7 +22,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, Ref } from 'vue'
+  import { assertExpressionStatement } from '@babel/types';
+import { ref, computed } from 'vue'
+import { fetchData } from './api'
+  
   var data =ref(
     [
       { "name": "fname", "label":"ID", "value": "2023-01-08-zhang_nmethods_2024"},
@@ -47,4 +50,14 @@
     let item=data.value.find(x=>x.name=='full_text_link');
     return item?item.value:'';
   })
+  const upload = async () => {
+    console.log('Method called');
+    try {
+      const response = await fetchData();
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
 </script>
