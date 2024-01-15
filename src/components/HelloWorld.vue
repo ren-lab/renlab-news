@@ -22,25 +22,27 @@
 </template>
 
 <script setup lang="ts">
-  import { assertExpressionStatement } from '@babel/types';
 import { ref, computed } from 'vue'
-import { fetchData } from './api'
-  
-  var data =ref(
-    [
-      { "name": "fname", "label":"ID", "value": "2023-01-08-zhang_nmethods_2024"},
-      { "name": "title", "label":"Title", "value": "A fast, scalable and versatile tool for analysis of single-cell omics data"},
-      { "name": "authors", "label":"Authors", "value": "Kai Zhang, Nathan R Zemke, Ethan J Armand, Bing Ren"},
-      { "name": "journal", "label":"Journal", "value": "Nature Methods"},
-      { "name": "doi", "label":"doi", "value": "https://doi.org/10.1038/s41592-023-02139-9"},
-      { "name": "abstract", "label":"Abstract", "value": "Single-cell omics technologies have revolutionized the study of ..."},
-      { "name": "teaser", "label":"Teaser", "value": "A fast, scalable and versatile tool for analysis of single-cell omics data"},
-      { "name": "full_text_link", "label":"Full text link", "value": "https://www.nature.com/articles/s41592-023-02139-9"}
-    ])
-  var thumb = ref()
+import { fetchData, postData } from './api'
+  var data =ref([{ "name": "", "label":"", "value": "" }])
+  var thumb_init = ref("")
+  var thumb = ref();
+  (async () => {
+    // console.log('fetch');
+    try {
+      const response = await fetchData();
+      data.value=response.data.json;
+      thumb_init.value = response.data.thumb;
+      // console.log(thumb_init.value);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  })()
   var image_url = computed(()=>{
-    if (!thumb.value) return;
-    return URL.createObjectURL(thumb.value[0]);
+    //console.log("image_url: "+thumb_init.value);
+    if (!thumb.value) return thumb_init.value;
+    var url= URL.createObjectURL(thumb.value[0]);
+    return url;
   })
   var doi = computed(()=>{
     let item=data.value.find(x=>x.name=='doi');
@@ -51,9 +53,9 @@ import { fetchData } from './api'
     return item?item.value:'';
   })
   const upload = async () => {
-    console.log('Method called');
+    // console.log('Method called');
     try {
-      const response = await fetchData();
+      const response = await postData(data.value, thumb.value[0]);
       console.log(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
