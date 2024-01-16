@@ -7,12 +7,10 @@ const api: AxiosInstance = axios.create({
 });
 
 // Example API call function
-export const postData = async (data:{ name: string; label: string; value: string; }[],
-  thumb: File): Promise<AxiosResponse> => {
+export const postData = async (data:{ name: string; label: string; value: string; }[]): Promise<AxiosResponse> => {
   try {
     let formData = new FormData();
     formData.append('json', JSON.stringify(data));
-    formData.append('thumb', thumb);
     const response = await api.post('/renlab_docker/uploader.php',
       formData, { headers: { 'Content-Type': 'multipart/form-data'}}
     );
@@ -32,4 +30,3 @@ try {
 };
 
 export default api;
-

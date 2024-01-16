@@ -9,13 +9,16 @@
             </tr>
           </tbody>
         </v-table>
-        <v-file-input v-model="thumb" accept="image/*" show-size label="Thumb image"></v-file-input>
+        <!-- v-file-input v-model="thumb" accept="image/*" show-size label="Thumb image"></v-file-input -->
         <v-btn type="submit" block class="mt-2" @click="upload">Submit</v-btn>
         <v-row>
-          <v-col v-if="doi"><a :href="doi" _target="_doi">doi</a><br/></v-col>
-          <v-col v-if="link"><a :href="link" _target="_link">link</a></v-col>
+          <v-col><a href="https://imgur.com/upload" target="_thumb">Upload thumb image</a><br/></v-col>
+          <v-col v-if="doi"><a :href="doi" target="_doi">doi</a><br/></v-col>
+          <v-col v-if="link"><a :href="link" target="_link">link</a></v-col>
         </v-row>
-        <v-img :src="image_url"/>
+        <v-row>
+          <v-col><v-img :src="image_url"/></v-col>
+        </v-row>
       </v-form>
     </v-responsive>
   </v-container>
@@ -25,25 +28,17 @@
 import { ref, computed } from 'vue'
 import { fetchData, postData } from './api'
   var data =ref([{ "name": "", "label":"", "value": "" }])
-  var thumb_init = ref("")
+  var image_url = ref("")
   var thumb = ref();
   (async () => {
-    // console.log('fetch');
     try {
       const response = await fetchData();
       data.value=response.data.json;
-      thumb_init.value = response.data.thumb;
-      // console.log(thumb_init.value);
+      image_url.value = response.data.thumb;
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   })()
-  var image_url = computed(()=>{
-    //console.log("image_url: "+thumb_init.value);
-    if (!thumb.value) return thumb_init.value;
-    var url= URL.createObjectURL(thumb.value[0]);
-    return url;
-  })
   var doi = computed(()=>{
     let item=data.value.find(x=>x.name=='doi');
     return item?item.value:'';
@@ -53,9 +48,8 @@ import { fetchData, postData } from './api'
     return item?item.value:'';
   })
   const upload = async () => {
-    // console.log('Method called');
     try {
-      const response = await postData(data.value, thumb.value[0]);
+      const response = await postData(data.value);
       console.log(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
